@@ -1,0 +1,30 @@
+name: Flatten Codebase
+on:
+  push:
+    paths:
+      - 'uploads/**.zip'  # Runs when a zip is added to uploads folder
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Run Preprocessor
+        run: |
+          python preprocess.py uploads/*.zip
+          
+      - name: Commit result
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add processed_code.md
+          git commit -m "Auto-flattened code"
+          git push
